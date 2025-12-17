@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scene_detector_headless.py previous
+scene_detector_headless.py previous version
 
 Headless (no Qt) version:
  - YOLO camera (kitchen + spectacles)
