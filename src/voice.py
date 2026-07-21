@@ -4,13 +4,9 @@ voice.py
 The full voice stack, in the order audio flows through it:
 
   1. TTS output          -> speak_text / speak_text_async  (gTTS + pygame)
-  2. Streaming ASR       -> AssemblyAI handlers + start_assembly_ai
-  3. Wake-word listener  -> Porcupine loop (hands off to the ASR session)
-
-NOTE: ``on_turn`` references ``call_voiceflow``, ``speak_voiceflow_response`` and
-``translator``, which are not defined in this project (pre-existing in the
-original code). Those code paths will raise if reached; behavior is preserved
-here intentionally.
+  2. Voiceflow + translate -> call_voiceflow / speak_voiceflow_response / translator
+  3. Streaming ASR       -> AssemblyAI handlers + start_assembly_ai
+  4. Wake-word listener  -> Porcupine loop (hands off to the ASR session)
 """
 
 import os
@@ -23,7 +19,10 @@ from . import state
 from .config import (
     ASSEMBLYAI_API_KEY, PRESENCE_JSON_PATH,
     PICOVOICE_ACCESS_KEY, KEYWORD_PATH, PV_DEVICE_INDEX,
+    VOICEFLOW_API_KEY, VOICEFLOW_VERSION_ID, VOICEFLOW_URL, TRANSLATE_TARGET,
 )
+
+import requests
 
 # voice libs
 try:
@@ -49,6 +48,14 @@ try:
 except Exception as e:
     print("[ERROR] Porcupine/PvRecorder import failed:", e)
     raise
+
+# translation (optional; falls back to no-op if unavailable)
+try:
+    from deep_translator import GoogleTranslator
+    translator = GoogleTranslator(source="auto", target=TRANSLATE_TARGET)
+except Exception as e:
+    print("[TRANSLATE] deep_translator unavailable:", e)
+    translator = None
 
 
 # =========================================================
@@ -80,6 +87,53 @@ def speak_text(text, lang='en'):
 
 def speak_text_async(text, lang='en'):
     threading.Thread(target=speak_text, args=(text, lang), daemon=True).start()
+
+
+# =========================================================
+# Voiceflow (optional conversational agent)
+# =========================================================
+def call_voiceflow(text):
+    """Send text to the Voiceflow runtime; return the parsed JSON events."""
+    if not VOICEFLOW_API_KEY:
+        print("[VOICEFLOW] no API key set")
+        return None
+    headers = {
+        "Authorization": VOICEFLOW_API_KEY,
+        "versionID": VOICEFLOW_VERSION_ID,
+        "Content-Type": "application/json",
+    }
+    payload = {"action": {"type": "text", "payload": text}}
+    try:
+        res = requests.post(VOICEFLOW_URL, json=payload, headers=headers, timeout=10)
+        res.raise_for_status()
+        return res.json()
+    except Exception as e:
+        print("[VOICEFLOW ERROR]", e)
+        return None
+
+
+def speak_voiceflow_response(events):
+    """Extract 'speak'/'text' messages from Voiceflow events and speak them."""
+    if not events:
+        return
+    messages = []
+    if isinstance(events, dict):
+        m = events.get("message") or events.get("payload", {}).get("message")
+        if m:
+            messages.append(m)
+    elif isinstance(events, list):
+        for ev in events:
+            try:
+                payload = ev.get("payload", {})
+                msg = payload.get("message") or payload.get("text")
+                if msg:
+                    messages.append(msg)
+            except Exception:
+                continue
+    if messages:
+        full = "\n\n".join(str(m) for m in messages if m)
+        print("[VOICEFLOW -> speak]", full)
+        speak_text_async(full, 'en')
 
 
 # =========================================================
@@ -176,6 +230,8 @@ def on_turn(client, event: TurnEvent):
         return
 
     # --- Fallback translation ---
+    if translator is None:
+        return
     try:
         translated = translator.translate(text)
         print("[TRANSLATION]", translated)

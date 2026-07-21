@@ -8,5 +8,8 @@ gTTS                 # text-to-speech
 assemblyai           # streaming speech-to-text
 pvporcupine          # wake-word ("Hey Pico")
 pvrecorder           # microphone input for Porcupine
-requests             # HTTP utility
+requests             # HTTP utility + Voiceflow calls
 python-dotenv        # loads API keys from a local .env file
+flask                # caregiver dashboard API
+flask-cors           # CORS for the dashboard API
+deep-translator      # EN -> BM fallback translation

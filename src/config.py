@@ -50,3 +50,20 @@ if PV_DEVICE_INDEX is not None:
 # Other settings
 SPECTACLE_LABELS = {'spectacle', 'glasses', 'spectacles', 'eyeglasses', 'sunglasses'}
 SPEC_THRESHOLD = float(os.environ.get("SPEC_THRESHOLD", "0.60"))
+
+# -------------------------
+# Flask API (caregiver dashboard reads these endpoints)
+# -------------------------
+API_HOST = os.environ.get("API_HOST", "0.0.0.0")
+API_PORT = int(os.environ.get("API_PORT", "5000"))
+
+# -------------------------
+# Voiceflow (optional conversational agent) — secret via env/.env
+# -------------------------
+VOICEFLOW_API_KEY = os.environ.get("VOICEFLOW_API_KEY", "")
+VOICEFLOW_USER_ID = os.environ.get("VOICEFLOW_USER_ID", "raspi")
+VOICEFLOW_VERSION_ID = os.environ.get("VOICEFLOW_VERSION_ID", "production")
+VOICEFLOW_URL = f"https://general-runtime.voiceflow.com/state/user/{VOICEFLOW_USER_ID}/interact"
+
+# Translation target language for the fallback translator (EN -> this)
+TRANSLATE_TARGET = os.environ.get("TRANSLATE_TARGET", "ms")

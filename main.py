@@ -20,6 +20,7 @@ import os
 import threading
 
 from src.config import MODEL_KITCHEN, MODEL_SPEC, KEYWORD_PATH
+from src.api import start_api_server
 from src.voice import wake_word_listener_loop
 from src.vision import camera_loop
 
@@ -38,6 +39,9 @@ def main():
     if not os.path.exists(KEYWORD_PATH):
         print("[MAIN] keyword file missing:", KEYWORD_PATH)
         # not fatal; porcupine will fail at runtime
+
+    # start Flask API server (background thread; dashboard polls it)
+    start_api_server()
 
     # start wakeword listener thread
     t_wake = threading.Thread(target=wake_word_listener_loop, daemon=True)
