@@ -1,0 +1,12 @@
+# Cognia — Scene Integration (on-device unit)
+# Install with:  pip install -r requirements.txt
+
+opencv-python        # camera capture
+ultralytics          # YOLO scene + spectacle detection
+pygame               # audio playback for TTS
+gTTS                 # text-to-speech
+assemblyai           # streaming speech-to-text
+pvporcupine          # wake-word ("Hey Pico")
+pvrecorder           # microphone input for Porcupine
+requests             # HTTP utility
+python-dotenv        # loads API keys from a local .env file
