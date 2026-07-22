@@ -25,8 +25,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 # -------------------------
 # CONFIG (edit / override via env)
 # -------------------------
-MODEL_KITCHEN = os.environ.get("MODEL_KITCHEN", "/home/zhipin/Documents/scene_integration/my_model.pt")
-MODEL_SPEC = os.environ.get("MODEL_SPEC", "/home/zhipin/Documents/scene_integration/my_model_spec.pt")
+MODEL_KITCHEN = os.environ.get("MODEL_KITCHEN", "./models/my_model.pt")
+MODEL_SPEC = os.environ.get("MODEL_SPEC", "./models/my_model_spec.pt")
 LAST_SEEN_JSON_PATH = os.environ.get("LAST_SEEN_JSON_PATH", "last_spec_seen.json")
 PRESENCE_JSON_PATH = os.environ.get("PRESENCE_JSON_PATH", "presence.json")
 
@@ -37,7 +37,7 @@ PRESENCE_PUSH_INTERVAL = float(os.environ.get("PRESENCE_PUSH_INTERVAL", "15"))
 # Do NOT hardcode real keys here — this file is committed to git.
 ASSEMBLYAI_API_KEY = os.environ.get("ASSEMBLYAI_API_KEY", "")
 PICOVOICE_ACCESS_KEY = os.environ.get("PICOVOICE_ACCESS_KEY", "")
-KEYWORD_PATH = os.environ.get("KEYWORD_PATH", "/home/zhipin/Documents/scene_integration/hey-pico_en_raspberry-pi_v3_0_0.ppn")
+KEYWORD_PATH = os.environ.get("KEYWORD_PATH", "./models/hey-pico.ppn")
 
 # optional: set PV device index via env; if unset, we'll try a fallback approach
 PV_DEVICE_INDEX = os.environ.get("PV_DEVICE_INDEX", None)
