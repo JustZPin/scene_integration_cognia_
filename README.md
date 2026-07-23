@@ -21,10 +21,11 @@ flowchart LR
     STATE --> DASH["📱 Caregiver dashboard"]
 ```
 
-`main.py` runs **two loops at once**, sharing only the flags in `state.py`:
+`main.py` runs **two loops + an API server at once**, sharing only the flags in `state.py`:
 
 - **Voice loop** (`voice.py`) — wait for "Hey Pico" → transcribe command → speak / set a flag.
 - **Vision loop** (`vision.py`) — read frame → detect scene + spectacles → save state → announce when asked.
+- **Flask API** (`api.py`) — serves the live state to the caregiver dashboard at `/api/health`, `/api/last_seen`, `/api/presence`, `/api/summary` (default port `5000`).
 
 ## What it does (user scenarios)
 
@@ -37,12 +38,13 @@ flowchart LR
 ## Layout
 
 ```
-main.py            # entry point: starts the voice thread + vision loop
+main.py            # entry point: starts the API server + voice thread + vision loop
 src/
 ├── config.py      # settings (env-overridable)
-├── state.py       # shared flags between the two loops
-├── voice.py       # wake-word (Porcupine) → STT (AssemblyAI) → TTS (gTTS)
-└── vision.py      # YOLO detection → JSON persistence → camera loop
+├── state.py       # shared flags between the loops
+├── voice.py       # wake-word (Porcupine) → STT (AssemblyAI) → TTS (gTTS) + Voiceflow
+├── vision.py      # YOLO detection → JSON persistence → camera loop
+└── api.py         # Flask API the caregiver dashboard polls (/api/*)
 ```
 
 ## Run
